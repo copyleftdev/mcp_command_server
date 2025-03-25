@@ -1,0 +1,125 @@
+# Dangerous Command Patterns for MCP Command Server
+# Any command matching these patterns will be rejected
+
+# Pattern matching rules:
+# - Patterns are case-insensitive by default
+# - Regular expressions can be used by adding 'regex:' prefix
+# - Plain text patterns will match anywhere in the command
+
+patterns:
+  # System modification commands
+  - apt
+  - apt-get
+  - yum
+  - dnf
+  - pacman
+  - npm
+  - pip
+  - gem
+  - brew
+  
+  # File deletion/modification
+  - rm -rf
+  - rm -r
+  - regex:^rm\s+[^\s]+\s+/
+  - regex:^rm\s+.*--no-preserve-root
+  - regex:shred\s+.*\s+/
+  
+  # System control commands
+  - shutdown
+  - reboot
+  - init
+  - systemctl
+  - service
+  
+  # User/permission modification
+  - useradd
+  - userdel
+  - usermod
+  - chmod
+  - chown
+  - passwd
+  - sudo
+  - su
+  
+  # Network attacks
+  - wget
+  - curl
+  - nc
+  - netcat
+  - telnet
+  - ssh
+  - nmap
+  - ping -f
+  
+  # Command chaining (could be used to bypass filters)
+  - regex:.*;.*
+  - regex:.*&&.*
+  - regex:.*\|\|.*
+  - regex:.*\|.*
+  - regex:.*>.*
+  - regex:.*>>.*
+  - regex:.*<.*
+  
+  # Script execution
+  - bash
+  - sh
+  - python
+  - perl
+  - ruby
+  - node
+  - php
+  - regex:.*\.sh
+  - regex:.*\.py
+  - regex:.*\.pl
+  - regex:.*\.rb
+  - regex:.*\.js
+  - regex:.*\.php
+  
+  # Process manipulation
+  - kill
+  - killall
+  - pkill
+  
+  # Filesystem commands that could cause harm
+  - mkfs
+  - fdisk
+  - sfdisk
+  - dd
+  - mount
+  - umount
+  
+  # System information leakage
+  - cat /etc/passwd
+  - cat /etc/shadow
+  - cat /etc/hosts
+  - env
+  - printenv
+  
+  # Process information
+  - ps aux
+  - top
+  
+  # Compression/archive with path traversal risk
+  - tar
+  - zip
+  - unzip
+  
+  # Command execution with eval
+  - eval
+  - exec
+  
+  # Data exfiltration
+  - base64
+  - regex:.*\| base64.*
+  
+  # Filesystem traversal (attempts to go outside allowed directories)
+  - regex:.*\.\.\/.*
+  - regex:.*\.\.\\.*
+  - regex:.*~\/.*
+
+# Options for pattern matching
+options:
+  case_sensitive: false
+  whole_command: false  # Set to true to match the entire command instead of substrings
+  allow_override: false # Set to true to allow specific overrides in a whitelist

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  command-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+      cache_from:
+        - rust:1.78-slim-bookworm
+    image: mcp_command_server:latest
+    container_name: mcp_command_server
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      - RUST_LOG=info
+      - RUST_BACKTRACE=1
+    volumes:
+      # For development: mount source code for hot reloading
+      - ./src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - mcp-network
+
+  # Add a development service for Cargo Watch (hot reloading during development)
+  command-server-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # You can create this later for development
+    profiles:
+      - dev
+    volumes:
+      - .:/app
+      - cargo-cache:/cache
+    environment:
+      - RUST_LOG=debug
+      - RUST_BACKTRACE=1
+    ports:
+      - "3030:3030"
+    command: cargo watch -x run
+    networks:
+      - mcp-network
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  cargo-cache:
+    driver: local

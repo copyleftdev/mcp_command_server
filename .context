@@ -1,0 +1,170 @@
+# MCP Command Server API Documentation
+
+## API Overview
+
+| Property | Value |
+|----------|-------|
+| API Description | MCP Command Server - JSON-RPC API for executing shell commands |
+| Version | 1.0 |
+| Base URL | http://localhost:3030 |
+| Protocol | JSON-RPC 2.0 |
+| Authentication | None currently implemented |
+| Primary Endpoint | / |
+| HTTP Method | POST |
+| Content Type | application/json |
+
+## Available Methods
+
+### command/get
+
+Executes a shell command and returns its output.
+
+#### Parameters
+
+| Name | Type | Description | Required | Example |
+|------|------|-------------|----------|---------|
+| command | string | The shell command to execute | Yes | `ls -la` |
+
+#### Response Format
+
+**Success Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "<request_id>",
+  "result": {
+    "stdout": "<command_output>"
+  },
+  "error": null
+}
+```
+
+**Error Response:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "<request_id>",
+  "result": null,
+  "error": {
+    "code": "<error_code>",
+    "message": "<error_message>"
+  }
+}
+```
+
+#### Error Codes
+
+| Code | Message | Description |
+|------|---------|-------------|
+| -32602 | Missing 'command' parameter | The required 'command' parameter was not provided |
+| -32000 | Command execution error | The command could not be executed or returned a non-zero exit code |
+| -32601 | Method not found | The specified method does not exist |
+
+## Instructions for AI Systems
+
+### Overview
+
+This API allows you to execute shell commands on the server and receive their output. Use it to interact with the system's files, processes, and resources.
+
+### Request Construction
+
+To execute a command, send a POST request to the base URL with a JSON-RPC 2.0 compliant body.
+
+**Required Fields:**
+- `jsonrpc` - Must be '2.0'
+- `id` - Any unique identifier for the request (number, string, or null)
+- `method` - Must be 'command/get' for executing commands
+- `params` - Object containing the 'command' parameter
+
+**Example Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "command/get",
+  "params": {
+    "command": "ls -la"
+  }
+}
+```
+
+### Response Handling
+
+The response will be a JSON-RPC 2.0 compliant object with either a result or error field.
+
+- **Success Response:** When successful, the 'result' field will contain an object with a 'stdout' property containing the command output.
+- **Error Response:** When unsuccessful, the 'error' field will contain an object with 'code' and 'message' properties describing the error.
+
+### Best Practices
+
+1. Keep commands simple and targeted - avoid complex pipelines when possible
+2. Be aware that commands run with the server's permissions - not all commands may be permitted
+3. Check for command execution errors by verifying the response does not contain an error field
+4. Use appropriate error handling to manage cases where commands fail
+
+### Limitations
+
+1. No authentication mechanism is currently implemented
+2. The server executes commands directly - consider security implications
+3. Long-running commands may timeout
+4. Binary output is not properly handled - stick to text-based commands
+
+### Common Commands
+
+| Command | Purpose |
+|---------|---------|
+| `ls -la` | List all files in the current directory with details |
+| `pwd` | Show current working directory |
+| `cat <filename>` | Display contents of a file |
+| `ps -ef` | List all running processes |
+| `free -h` | Show memory usage |
+| `df -h` | Show disk usage |
+
+### Usage Examples
+
+#### Example 1: List files in the /tmp directory
+
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "example-1",
+  "method": "command/get",
+  "params": {
+    "command": "ls -la /tmp"
+  }
+}
+```
+
+#### Example 2: Check system uptime
+
+**Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "example-2",
+  "method": "command/get",
+  "params": {
+    "command": "uptime"
+  }
+}
+```
+
+## Security Considerations
+
+This API executes commands with the permissions of the user running the server. In production environments, consider:
+
+1. Implementing an authentication mechanism
+2. Using a whitelist of allowed commands
+3. Running the server with the least privileges necessary
+4. Sanitizing command inputs to prevent shell injection
+
+## Code Implementation
+
+The server is built using:
+- Rust programming language
+- Tokio async runtime
+- Warp web framework
+- Serde for JSON serialization/deserialization
+
+The API follows the JSON-RPC 2.0 specification for request/response handling.

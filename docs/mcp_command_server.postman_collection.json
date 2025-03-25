@@ -1,0 +1,668 @@
+{
+	"info": {
+		"_postman_id": "3b67e4d5-0e2f-4a32-9e6a-2a8b14cc3e2f",
+		"name": "MCP Command Server",
+		"description": "# MCP Command Server API\n\nThis collection contains requests for interacting with the MCP Command Server, a JSON-RPC API that allows executing commands remotely.\n\n## Overview\n\nThe API follows the JSON-RPC 2.0 specification and provides a method to execute commands on the server and return their output.\n\n## Authentication\n\nCurrently, there is no authentication mechanism implemented. This API should be used in a secure, controlled environment.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "123456"
+	},
+	"item": [
+		{
+			"name": "API Documentation",
+			"item": [
+				{
+					"name": "Get API Context",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/context",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"context"
+							]
+						},
+						"description": "Retrieves the comprehensive API documentation in markdown format, designed to help AI systems and developers understand how to interact with the API. This endpoint serves the contents of the `.context` file."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/context",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"context"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "markdown",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/markdown"
+								}
+							],
+							"cookie": [],
+							"body": "# MCP Command Server API Documentation\n\n## API Overview\n\n| Property | Value |\n|----------|-------|\n| API Description | MCP Command Server - JSON-RPC API for executing shell commands |\n| Version | 1.0 |\n\n... (Documentation continues)"
+						}
+					]
+				}
+			],
+			"description": "Endpoints that provide documentation and metadata about the API."
+		},
+		{
+			"name": "Basic Commands",
+			"item": [
+				{
+					"name": "List Files (ls)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 1,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"ls -la\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Lists files in the current directory with detailed information."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 1,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"ls -la\"\n    }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}",
+									"host": [
+										"{{base_url}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 1,\n    \"result\": {\n        \"stdout\": \"total 28\\ndrwxr-xr-x 4 user user 4096 Mar 24 20:35 .\\ndrwxr-xr-x 4 user user 4096 Mar 24 20:30 ..\\ndrwxr-xr-x 8 user user 4096 Mar 24 20:35 .git\\n-rw-r--r-- 1 user user 1234 Mar 24 20:35 Cargo.toml\\n-rw-r--r-- 1 user user 2345 Mar 24 20:35 Dockerfile\\n-rw-r--r-- 1 user user 3456 Mar 24 20:35 docker-compose.yml\\ndrwxr-xr-x 2 user user 4096 Mar 24 20:35 src\\n\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Current Directory (pwd)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for successful response",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Test for JSON-RPC 2.0 format",
+									"pm.test(\"Response is in JSON-RPC 2.0 format\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.jsonrpc).to.eql(\"2.0\");",
+									"    pm.expect(jsonData.id).to.eql(2);",
+									"    pm.expect(jsonData).to.have.property('result');",
+									"    pm.expect(jsonData.result).to.have.property('stdout');",
+									"});",
+									"",
+									"// Test that stdout contains a valid path",
+									"pm.test(\"Response contains a valid path\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout).to.match(/^\\/[\\w\\/.-]+\\n$/);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 2,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"pwd\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Returns the current working directory of the server."
+					},
+					"response": []
+				},
+				{
+					"name": "System Information (uname)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is in JSON-RPC 2.0 format\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.jsonrpc).to.eql(\"2.0\");",
+									"    pm.expect(jsonData.id).to.eql(3);",
+									"    pm.expect(jsonData).to.have.property('result');",
+									"});",
+									"",
+									"pm.test(\"Contains system information\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout.trim()).to.not.be.empty;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 3,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"uname -a\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Returns detailed system information about the server."
+					},
+					"response": []
+				}
+			],
+			"description": "Basic system commands to retrieve information about the server environment."
+		},
+		{
+			"name": "File Operations",
+			"item": [
+				{
+					"name": "Create File (echo)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File creation was successful\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result).to.have.property('stdout');",
+									"    pm.expect(jsonData.error).to.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 4,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"echo 'Hello from Postman test!' > /tmp/postman-test.txt\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Creates a test file in /tmp directory."
+					},
+					"response": []
+				},
+				{
+					"name": "Read File (cat)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File content matches expected\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout.trim()).to.eql('Hello from Postman test!');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 5,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"cat /tmp/postman-test.txt\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Reads the content of the previously created test file."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove File (rm)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File removal was successful\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.be.null;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 6,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"rm /tmp/postman-test.txt\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Removes the test file created earlier."
+					},
+					"response": []
+				}
+			],
+			"description": "Operations to create, read, and delete files on the server."
+		},
+		{
+			"name": "Error Cases",
+			"item": [
+				{
+					"name": "Invalid Method",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 but contains error\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.not.be.null;",
+									"});",
+									"",
+									"pm.test(\"Error code is for method not found\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error.code).to.eql(-32601);",
+									"    pm.expect(jsonData.error.message).to.include(\"Method not found\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 7,\n    \"method\": \"invalid/method\",\n    \"params\": {}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Tests the API's handling of an invalid method name."
+					},
+					"response": []
+				},
+				{
+					"name": "Missing Command Parameter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 but contains error\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.not.be.null;",
+									"});",
+									"",
+									"pm.test(\"Error is for missing command parameter\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error.code).to.eql(-32602);",
+									"    pm.expect(jsonData.error.message).to.include(\"Missing 'command' parameter\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 8,\n    \"method\": \"command/get\",\n    \"params\": {}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Tests the API's handling of a missing required parameter."
+					},
+					"response": []
+				},
+				{
+					"name": "Command Execution Error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 but contains error\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error).to.not.be.null;",
+									"});",
+									"",
+									"pm.test(\"Error is for command execution\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.error.code).to.eql(-32000);",
+									"    pm.expect(jsonData.error.message).to.include(\"Command execution error\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 9,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"thiscommanddoesnotexist\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Tests the API's handling of a non-existent command."
+					},
+					"response": []
+				}
+			],
+			"description": "Test cases that validate the API's error handling capabilities."
+		},
+		{
+			"name": "Advanced Commands",
+			"item": [
+				{
+					"name": "Process List (ps)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Process list contains data\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout).to.not.be.empty;",
+									"    // Should contain at least a header and some process",
+									"    pm.expect(jsonData.result.stdout.split('\\n').length).to.be.greaterThan(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 10,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"ps -ef\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Lists all running processes on the server."
+					},
+					"response": []
+				},
+				{
+					"name": "Disk Usage (df)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Disk usage information exists\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout).to.not.be.empty;",
+									"    // Should contain at least a header and some filesystem",
+									"    pm.expect(jsonData.result.stdout.split('\\n').length).to.be.greaterThan(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 11,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"df -h\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Shows disk usage in a human-readable format."
+					},
+					"response": []
+				},
+				{
+					"name": "Memory Usage (free)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Memory information exists\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.result.stdout).to.not.be.empty;",
+									"    // Should mention memory terms",
+									"    pm.expect(jsonData.result.stdout.toLowerCase()).to.include('mem');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"id\": 12,\n    \"method\": \"command/get\",\n    \"params\": {\n        \"command\": \"free -h\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						},
+						"description": "Shows memory usage information in a human-readable format."
+					},
+					"response": []
+				}
+			],
+			"description": "More advanced system commands to monitor and analyze the server resources."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3030",
+			"type": "string"
+		}
+	]
+}
