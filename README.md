@@ -1,15 +1,21 @@
      <div align="center">
 
-# 🌐 MCP Command Server
+# MCP Command Server
 
-<img src="https://raw.githubusercontent.com/rust-lang/rust-artwork/master/logo/rust-logo-512x512.png" width="100">
+<img src="https://img.icons8.com/fluency/96/000000/command-line.png" width="96" height="96" alt="Command Line Icon"/>
 
-**A secure, containerized JSON-RPC API server for executing shell commands**
+**Secure JSON-RPC API for Remote Command Execution**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Built with Rust](https://img.shields.io/badge/Built%20with-Rust-orange)](https://www.rust-lang.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](docker-compose.yml)
-[![JSON-RPC](https://img.shields.io/badge/API-JSON--RPC%202.0-lightgrey)](https://www.jsonrpc.org/specification)
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Built%20with-Rust-orange" alt="Built with Rust"></a>
+  <a href="docker-compose.yml"><img src="https://img.shields.io/badge/Docker-Ready-blue" alt="Docker"></a>
+  <a href="https://www.jsonrpc.org/specification"><img src="https://img.shields.io/badge/API-JSON--RPC%202.0-lightgrey" alt="JSON-RPC"></a>
+</p>
+
+<p align="center">
+  MCP Command Server provides a secure, containerized interface for remote command execution with built-in pattern-based security validation, comprehensive API documentation, and enterprise-ready deployment configurations.
+</p>
 
 </div>
 
