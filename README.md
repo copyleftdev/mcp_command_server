@@ -253,6 +253,8 @@ The API follows the JSON-RPC 2.0 specification:
 
 ## 🔒 Security
 
+**🚨 SECURITY UPDATE**: Version 0.1.1 fixes a critical whitespace injection vulnerability (CVE-2024-XXXX) that allowed bypassing command filters. All users should update immediately.
+
 The MCP Command Server implements several security measures:
 
 ### Command Exclusion System

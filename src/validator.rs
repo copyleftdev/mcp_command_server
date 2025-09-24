@@ -78,10 +78,19 @@ pub fn validate_command(command: &str) -> Result<(), String> {
         None => return Ok(()), // No patterns loaded, allow all commands
     };
 
+    // SECURITY FIX: Normalize the command using the same parsing logic as the executor
+    // This prevents whitespace injection attacks where attackers use tabs/newlines
+    // instead of spaces to bypass denylist patterns
+    let parts: Vec<&str> = command.split_whitespace().collect();
+    if parts.is_empty() {
+        return Err("Empty command".to_string());
+    }
+    let canonical_command = parts.join(" ");
+
     let command_to_check = if patterns.options.case_sensitive {
-        command.to_string()
+        canonical_command.clone()
     } else {
-        command.to_lowercase()
+        canonical_command.to_lowercase()
     };
 
     // Check plain text patterns
@@ -98,9 +107,15 @@ pub fn validate_command(command: &str) -> Result<(), String> {
 
         if patterns.options.whole_command {
             if command_to_check == pattern_to_check {
+                // Log security violation for monitoring
+                eprintln!("SECURITY ALERT: Command blocked by exact match - Original: '{}', Canonical: '{}', Pattern: '{}'", 
+                         command, canonical_command, pattern);
                 return Err(format!("Command '{}' is blocked by pattern '{}'", command, pattern));
             }
         } else if command_to_check.contains(&pattern_to_check) {
+            // Log security violation for monitoring
+            eprintln!("SECURITY ALERT: Command blocked by substring match - Original: '{}', Canonical: '{}', Pattern: '{}'", 
+                     command, canonical_command, pattern);
             return Err(format!("Command '{}' is blocked by pattern '{}'", command, pattern));
         }
     }
@@ -109,6 +124,9 @@ pub fn validate_command(command: &str) -> Result<(), String> {
     let regexes_read = COMPILED_REGEX.read().unwrap();
     for regex in &*regexes_read {
         if regex.is_match(&command_to_check) {
+            // Log security violation for monitoring
+            eprintln!("SECURITY ALERT: Command blocked by regex - Original: '{}', Canonical: '{}', Regex: '{}'", 
+                     command, canonical_command, regex.as_str());
             return Err(format!(
                 "Command '{}' is blocked by regex pattern '{}'",
                 command,
